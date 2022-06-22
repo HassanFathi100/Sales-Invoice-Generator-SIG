@@ -1,11 +1,13 @@
 package Model;
 
+import java.util.ArrayList;
+
 public class InvoiceHeader {
 
     private String invoiceNumber;
     private String invoiceDate;
     private String customerName;
-    private InvoiceLines[] invoiceDetails;
+    private ArrayList<InvoiceLines> invoiceDetails;
     private int invoiceItemsCount;
 
 
@@ -39,11 +41,11 @@ public class InvoiceHeader {
         this.customerName = customerName;
     }
 
-    public InvoiceLines[] getInvoiceDetails() {
+    public ArrayList<InvoiceLines> getInvoiceDetails() {
         return invoiceDetails;
     }
 
-    public void setInvoiceDetails(InvoiceLines[] invoiceDetails) {
+    public void setInvoiceDetails(ArrayList<InvoiceLines> invoiceDetails) {
         this.invoiceDetails = invoiceDetails;
     }
 
