@@ -7,6 +7,7 @@ public class InvoiceLines {
     private String itemPrice;
     private String itemCount;
     private String itemTotalPrice;
+    private String filePath;
 
     public InvoiceLines(String invoiceNumber, String itemName, String itemPrice, String itemCount) {
         this.invoiceNumber = invoiceNumber;
@@ -56,5 +57,13 @@ public class InvoiceLines {
 
     public void setItemTotalPrice(String itemTotalPrice) {
         this.itemTotalPrice = itemTotalPrice;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 }
