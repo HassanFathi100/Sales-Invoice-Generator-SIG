@@ -30,12 +30,8 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     private JTable invoicesTable;
     private String[] invoicesTableColumns = {"No.", "Date", "Customer", "Total"};
 
-    private ArrayList<InvoiceHeader> invoicesTableData;
-    TableController tableController = new TableController(invoicesTableData);
-
-
-
-    String[][] tempData2 = new String[5][100];
+    private ArrayList<InvoiceHeader> invoicesTableData = new ArrayList<InvoiceHeader>();
+    TableController tableController = new TableController(invoicesTableData,"resoures/InvoiceHeader.csv", "resoures/InvoiceLine.csv");
 
     private JButton newInvoiceButton;
     private JButton deleteInvoiceButton;
@@ -52,8 +48,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     DefaultTableModel invoiceDetailsTableModel;
     private JTable invoiceDetailsTable;
     private String[] invoiceDetailsTableColumns = {"No.", "Item Name", "Item Price", "Count", "Item Total"};
-//    private String[][] invoiceDetailsData = csvToArray("Sales-Invoice-Generator/src/InvoiceLine.csv", true);
-//    private String [][] invoiceDetailsData = {{"1", "2", "3", "4", "5"}};
+
     private JButton saveButton;
     private JButton cancelButton;
 
@@ -66,7 +61,6 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        System.out.println(tableController.getTablesData());
         // Menu Bar
         menuBar = new JMenuBar();
 
@@ -91,9 +85,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         //Left Panel
         invoicesTableModel = new DefaultTableModel(null, invoicesTableColumns);
 
-        ArrayList<InvoiceHeader> invoicesData;
-        invoicesData = FileOperations.readFile("resoures/InvoiceHeader.csv","resoures/InvoiceLine.csv");
-        invoicesTableData = (ArrayList)invoicesData.clone();
+        invoicesTableData = tableController.getTablesData();
 
         for(int i = 0 ; i < invoicesTableData.size() ; i++) {
             Object[] invoicesTableDataObject = new Object[]{
@@ -126,6 +118,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         // Right Panel
+        invoiceNumber = invoicesTableData.get(0).getInvoiceNumber();
         JLabel invoiceNumberLabel = new JLabel("Invoice Number: "+ invoiceNumber);
         invoiceNumberLabel.setBounds(440,20, 400, 20);
         add(invoiceNumberLabel);
@@ -164,7 +157,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
             for(int j = 0 ; j < invoicesTableData.get(i).getInvoiceDetails().toArray().length ; j++){
                 Object[] invoicesTableDataObject = new Object[10];
 
-                if(Objects.equals(invoicesData.get(i).getInvoiceNumber(), invoicesData.get(i).getInvoiceDetails().get(j).getInvoiceNumber())) {
+                if(Objects.equals(invoicesTableData.get(i).getInvoiceNumber(), invoicesTableData.get(i).getInvoiceDetails().get(j).getInvoiceNumber())) {
                         invoicesTableDataObject = new Object[]{
                                 invoicesTableData.get(i).getInvoiceDetails().get(j).getInvoiceNumber(),
                                 invoicesTableData.get(i).getInvoiceDetails().get(j).getItemName(),
