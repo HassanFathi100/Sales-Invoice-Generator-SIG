@@ -6,6 +6,7 @@ import Model.InvoiceHeader;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
@@ -14,6 +15,9 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class GUI extends JFrame implements ActionListener, MouseListener {
+
+    private String headerFilePathDefault = "resoures/InvoiceHeader.csv";
+    private String lineFilePathDefault = "resoures/InvoiceLine.csv";
 
     // Menu Bar
     private JMenuBar menuBar;
@@ -31,7 +35,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     private String[] invoicesTableColumns = {"No.", "Date", "Customer", "Total"};
 
     private ArrayList<InvoiceHeader> invoicesTableData = new ArrayList<InvoiceHeader>();
-    TableController tableController = new TableController(invoicesTableData,"resoures/InvoiceHeader.csv", "resoures/InvoiceLine.csv");
+    TableController tableController = new TableController(invoicesTableData, headerFilePathDefault, lineFilePathDefault);
 
     private JButton newInvoiceButton;
     private JButton deleteInvoiceButton;
@@ -201,7 +205,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
 //        System.out.println(i);
         switch (e.getActionCommand()) {
 //            case "saveFile" -> saveInvoice();
-//            case "loadFile" -> loadInvoice();
+            case "loadFile" -> loadInvoice();
             case "deleteInvoice" -> deleteInvoice();
             case "newInvoice" -> createNewInvoice();
 //            case "saveNewInvoice" -> saveNewInvoice();
@@ -234,6 +238,82 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
 
     }
 
+
+    private void loadInvoice(){
+        JOptionPane.showMessageDialog(this, "Select Invoice Header.", "Invoice Header", JOptionPane.INFORMATION_MESSAGE);
+
+        JFileChooser fc = new JFileChooser();
+        fc.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter restrict = new FileNameExtensionFilter("Comma Separated Values (.csv)", "csv");
+        fc.addChoosableFileFilter(restrict);
+
+        int result = fc.showOpenDialog(this);
+
+        String headerFilePath = "";
+        if(result == JFileChooser.APPROVE_OPTION){
+            headerFilePath = fc.getSelectedFile().getPath();
+        }
+
+        JOptionPane.showMessageDialog(this, "Select Invoice Line.", "Invoice Line", JOptionPane.INFORMATION_MESSAGE);
+
+        fc = new JFileChooser();
+        fc.setAcceptAllFileFilterUsed(false);
+        restrict = new FileNameExtensionFilter("Comma Separated Values (.csv)", "csv");
+        fc.addChoosableFileFilter(restrict);
+
+        result = fc.showOpenDialog(this);
+
+        String lineFilePath = "";
+        if(result == JFileChooser.APPROVE_OPTION){
+            lineFilePath = fc.getSelectedFile().getPath();
+        }
+        System.out.println("invoicesTableModel.getRowCount()" + invoicesTableModel.getRowCount());
+
+        int tempRowCount = invoicesTableModel.getRowCount();
+        for(int i = 0 ; i < tempRowCount ; i++){
+            invoicesTableModel.removeRow(0);
+        }
+        tempRowCount = invoiceDetailsTableModel.getRowCount();
+        for(int i = 0 ; i < tempRowCount ; i++){
+            invoiceDetailsTableModel.removeRow(0);
+        }
+
+        invoicesTableData = new ArrayList<InvoiceHeader>();
+        tableController = new TableController(invoicesTableData, headerFilePath, lineFilePath);
+        invoicesTableData = tableController.getTablesData();
+
+
+        for(int i = 0 ; i < invoicesTableData.size() ; i++) {
+            Object[] invoicesTableDataObject = new Object[]{
+                    invoicesTableData.get(i).getInvoiceNumber(),
+                    invoicesTableData.get(i).getInvoiceDate(),
+                    invoicesTableData.get(i).getCustomerName(),
+                    " ",
+            };
+            invoicesTableModel.addRow(invoicesTableDataObject);
+        }
+
+
+
+        for (int i = 0 ; i < invoicesTableData.toArray().length ; i++){
+            for(int j = 0 ; j < invoicesTableData.get(i).getInvoiceDetails().toArray().length ; j++){
+                Object[] invoicesTableDataObject;
+
+                if(Objects.equals(invoicesTableData.get(i).getInvoiceNumber(), invoicesTableData.get(i).getInvoiceDetails().get(j).getInvoiceNumber())) {
+                    invoicesTableDataObject = new Object[]{
+                            invoicesTableData.get(i).getInvoiceDetails().get(j).getInvoiceNumber(),
+                            invoicesTableData.get(i).getInvoiceDetails().get(j).getItemName(),
+                            invoicesTableData.get(i).getInvoiceDetails().get(j).getItemPrice(),
+                            invoicesTableData.get(i).getInvoiceDetails().get(j).getItemCount(),
+                            invoicesTableData.get(i).getInvoiceDetails().get(j).getItemTotalPrice(),
+                    };
+                    invoiceDetailsTableModel.addRow(invoicesTableDataObject);
+                }
+            }
+        }
+
+
+    }
 
     private void deleteInvoice() {
         int row = invoicesTable.getSelectedRow();
