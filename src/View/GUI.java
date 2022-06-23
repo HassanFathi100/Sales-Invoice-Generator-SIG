@@ -10,6 +10,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -55,7 +56,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
 
     private JButton saveButton;
     private JButton cancelButton;
-
+    private JButton addNewRowButton;
 
     public GUI(){
         super("Sales Invoice Generator");
@@ -181,14 +182,20 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         rightPanel.add(invoiceDetailsTableSP, BorderLayout.CENTER);
 
         saveButton = new JButton("Save");
-        saveButton.setBounds(500,590,100,20);
+        saveButton.setBounds(580,590,100,20);
         saveButton.addActionListener(this);
         saveButton.setActionCommand("saveNewInvoice");
         add(saveButton);
 
         cancelButton = new JButton("Cancel");
-        cancelButton.setBounds(670,590,100,20);
+        cancelButton.setBounds(700,590,100,20);
         add(cancelButton);
+
+        addNewRowButton = new JButton("Add Row");
+        addNewRowButton.setBounds(460,590,100,20);
+        addNewRowButton.addActionListener(this);
+        addNewRowButton.setActionCommand("addNewRow");
+        add(addNewRowButton);
     }
 
 
@@ -204,11 +211,12 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         var i = invoicesTable.getSelectedRow();
 //        System.out.println(i);
         switch (e.getActionCommand()) {
-//            case "saveFile" -> saveInvoice();
+            case "saveFile" -> saveInvoice();
             case "loadFile" -> loadInvoice();
             case "deleteInvoice" -> deleteInvoice();
             case "newInvoice" -> createNewInvoice();
-//            case "saveNewInvoice" -> saveNewInvoice();
+            case "addNewRow" -> addNewRow();
+            case "saveNewInvoice" -> saveNewInvoice();
             default -> {}
         }
     }
@@ -238,6 +246,61 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
 
     }
 
+
+    private void saveInvoice() {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Save your invoice");
+
+        fc.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter restrict = new FileNameExtensionFilter("Comma Separated Values (.csv)", "csv");
+        fc.addChoosableFileFilter(restrict);
+
+        int result = fc.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File csvFile = fc.getSelectedFile();
+            String path = csvFile.getAbsolutePath();
+
+            if(!path.endsWith(".csv")){
+                csvFile = new File(path + ".csv");
+            }
+            FileWriter fw = null;
+            BufferedWriter bw = null;
+
+            try {
+                fw = new FileWriter(csvFile);
+                bw = new BufferedWriter(fw);
+
+                // Iterate over each cell of the table
+                for (int i = 0; i < invoiceDetailsTable.getRowCount(); i++) {
+                    for (int j = 0; j < invoiceDetailsTable.getColumnCount(); j++) {
+                        bw.write(invoiceDetailsTable.getValueAt(i, j).toString() + ","); // Save the value of each cell and follow it with ","
+                    }
+                    bw.newLine(); // Create a new line (new row)
+                }
+                JOptionPane.showMessageDialog(this, "Your file has been saved successfully", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "File Not Found", "ERROR", JOptionPane.ERROR_MESSAGE);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "ERROR", "ERROR MESSAGE", JOptionPane.ERROR_MESSAGE);
+            } finally {
+                try {
+                    assert bw != null;
+                    bw.close();
+                    fw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
+    private void saveNewInvoice() {
+        invoicesTableModel.addRow(new Object[]{invoiceNumber, invoiceDateTF.getText(), customerNameTF.getText(), invoiceTotal});
+        saveInvoice();
+    }
 
     private void loadInvoice(){
         JOptionPane.showMessageDialog(this, "Select Invoice Header.", "Invoice Header", JOptionPane.INFORMATION_MESSAGE);
@@ -344,15 +407,11 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     }
 
     private void createNewInvoice(){
+        invoicesTableModel.addRow(new Object[]{" ", " ", " ", " "});
+    }
 
-        String[][] emptyInvoice = new String[10][5];
-        for(int i=0; i < 10; i++){
-            for(int j=0; j < 5; j++){
-                emptyInvoice[i][j] = null;
-            }
-        }
-        invoiceDetailsTable.setModel(new DefaultTableModel(emptyInvoice,invoiceDetailsTableColumns));
-        invoicesTableModel.addRow(new Object[]{"", " ", " ", " "});
+    private void addNewRow(){
+        invoiceDetailsTableModel.addRow(new Object[]{" ", " ", " ", " ", " "});
     }
 }
 
