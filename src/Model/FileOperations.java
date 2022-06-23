@@ -7,10 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class FileOperations {
 
@@ -28,12 +25,13 @@ public class FileOperations {
             );
 
             for(int j = 0; j < invoicesData.get(i).getInvoiceDetails().toArray().length ; j++){
-
-                System.out.println(invoicesData.get(i).getInvoiceDetails().get(j).getItemName() + " " +
-                        invoicesData.get(i).getInvoiceDetails().get(j).getItemPrice() + " " +
-                        invoicesData.get(i).getInvoiceDetails().get(j).getItemCount() + " " +
-                        invoicesData.get(i).getInvoiceDetails().get(j).getItemTotalPrice()
-                );
+                if(Objects.equals(invoicesData.get(i).getInvoiceNumber(), invoicesData.get(i).getInvoiceDetails().get(j).getInvoiceNumber())) {
+                    System.out.println(invoicesData.get(i).getInvoiceDetails().get(j).getItemName() + " " +
+                            invoicesData.get(i).getInvoiceDetails().get(j).getItemPrice() + " " +
+                            invoicesData.get(i).getInvoiceDetails().get(j).getItemCount() + " " +
+                            invoicesData.get(i).getInvoiceDetails().get(j).getItemTotalPrice()
+                    );
+                }
             }
 
             System.out.println("}");

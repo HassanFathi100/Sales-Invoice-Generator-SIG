@@ -1,10 +1,17 @@
 package View;
 
+import Controller.TableController;
+import Model.FileOperations;
+import Model.InvoiceHeader;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class GUI extends JFrame implements ActionListener, MouseListener {
 
@@ -22,8 +29,12 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     private DefaultTableModel invoicesTableModel;
     private JTable invoicesTable;
     private String[] invoicesTableColumns = {"No.", "Date", "Customer", "Total"};
-//    private String[][] invoicesTableData = csvToArray("Sales-Invoice-Generator/src/InvoiceHeader.csv", false);
-    private String [][] invoicesTableData = {{"1", "2", "3", "4"}};
+
+    private ArrayList<InvoiceHeader> invoicesTableData;
+    TableController tableController = new TableController(invoicesTableData);
+
+
+
     String[][] tempData2 = new String[5][100];
 
     private JButton newInvoiceButton;
@@ -42,7 +53,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     private JTable invoiceDetailsTable;
     private String[] invoiceDetailsTableColumns = {"No.", "Item Name", "Item Price", "Count", "Item Total"};
 //    private String[][] invoiceDetailsData = csvToArray("Sales-Invoice-Generator/src/InvoiceLine.csv", true);
-    private String [][] invoiceDetailsData = {{"1", "2", "3", "4", "5"}};
+//    private String [][] invoiceDetailsData = {{"1", "2", "3", "4", "5"}};
     private JButton saveButton;
     private JButton cancelButton;
 
@@ -55,6 +66,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+        System.out.println(tableController.getTablesData());
         // Menu Bar
         menuBar = new JMenuBar();
 
@@ -77,7 +89,22 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         //Left Panel
-        invoicesTableModel = new DefaultTableModel(invoicesTableData, invoicesTableColumns);
+        invoicesTableModel = new DefaultTableModel(null, invoicesTableColumns);
+
+        ArrayList<InvoiceHeader> invoicesData;
+        invoicesData = FileOperations.readFile("resoures/InvoiceHeader.csv","resoures/InvoiceLine.csv");
+        invoicesTableData = (ArrayList)invoicesData.clone();
+
+        for(int i = 0 ; i < invoicesTableData.size() ; i++) {
+            Object[] invoicesTableDataObject = new Object[]{
+                    invoicesTableData.get(i).getInvoiceNumber(),
+                    invoicesTableData.get(i).getInvoiceDate(),
+                    invoicesTableData.get(i).getCustomerName(),
+                    " ",
+            };
+            invoicesTableModel.addRow(invoicesTableDataObject);
+        }
+
         invoicesTable = new JTable(invoicesTableModel);
         invoicesTable.addMouseListener(this);
         JScrollPane invoicesTableSP = new JScrollPane(invoicesTable);
@@ -131,7 +158,26 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         getContentPane().add(rightPanel, BorderLayout.CENTER);
         add(rightPanel);
 
-        invoiceDetailsTableModel = new DefaultTableModel(invoiceDetailsData, invoiceDetailsTableColumns);
+        invoiceDetailsTableModel = new DefaultTableModel(null, invoiceDetailsTableColumns);
+
+        for (int i = 0 ; i < invoicesTableData.toArray().length ; i++){
+            for(int j = 0 ; j < invoicesTableData.get(i).getInvoiceDetails().toArray().length ; j++){
+                Object[] invoicesTableDataObject = new Object[10];
+
+                if(Objects.equals(invoicesData.get(i).getInvoiceNumber(), invoicesData.get(i).getInvoiceDetails().get(j).getInvoiceNumber())) {
+                        invoicesTableDataObject = new Object[]{
+                                invoicesTableData.get(i).getInvoiceDetails().get(j).getInvoiceNumber(),
+                                invoicesTableData.get(i).getInvoiceDetails().get(j).getItemName(),
+                                invoicesTableData.get(i).getInvoiceDetails().get(j).getItemPrice(),
+                                invoicesTableData.get(i).getInvoiceDetails().get(j).getItemCount(),
+                                invoicesTableData.get(i).getInvoiceDetails().get(j).getItemTotalPrice(),
+                        };
+                    invoiceDetailsTableModel.addRow(invoicesTableDataObject);
+                    }
+                }
+            }
+
+
         invoiceDetailsTable = new JTable(invoiceDetailsTableModel);
         JScrollPane invoiceDetailsTableSP = new JScrollPane(invoiceDetailsTable);
         invoiceDetailsTableSP.setBounds(10,20,380,370);
