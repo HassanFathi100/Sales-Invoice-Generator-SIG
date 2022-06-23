@@ -197,7 +197,16 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        var i = invoicesTable.getSelectedRow();
+//        System.out.println(i);
+        switch (e.getActionCommand()) {
+//            case "saveFile" -> saveInvoice();
+//            case "loadFile" -> loadInvoice();
+            case "deleteInvoice" -> deleteInvoice();
+            case "newInvoice" -> createNewInvoice();
+//            case "saveNewInvoice" -> saveNewInvoice();
+            default -> {}
+        }
     }
 
     @Override
@@ -223,6 +232,47 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     @Override
     public void mouseExited(MouseEvent e) {
 
+    }
+
+
+    private void deleteInvoice() {
+        int row = invoicesTable.getSelectedRow();
+        Object deletedInvoiceNumber = invoicesTable.getModel().getValueAt(row, 0);
+        invoicesTableModel.removeRow(row);
+        String temp = null;
+
+        for(int i = 0 ; i < invoicesTableData.size() ; i++){
+            if(invoicesTableData.get(i).getInvoiceNumber() == deletedInvoiceNumber){
+                temp = invoicesTableData.get(i).getInvoiceNumber();
+            }
+        }
+
+        ArrayList<Integer> tempArray = new ArrayList<Integer>(10);
+        for(int i = 0 ; i < invoiceDetailsTableModel.getRowCount() ; i++){
+            Object deletedInvoiceLine = invoiceDetailsTableModel.getValueAt(i, 0);
+
+            if (Objects.equals(deletedInvoiceLine.toString(), temp)){
+                tempArray.add(i);
+            }
+        }
+        System.out.println(tempArray);
+        for(int i = tempArray.size()-1 ; i >= 0 ; i--) {
+            invoiceDetailsTableModel.removeRow(tempArray.get(i));
+        }
+
+        JOptionPane.showMessageDialog(this, "Invoice has been deleted successfully. Press 'save' to save current invoices.", "Delete Invoice", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void createNewInvoice(){
+
+        String[][] emptyInvoice = new String[10][5];
+        for(int i=0; i < 10; i++){
+            for(int j=0; j < 5; j++){
+                emptyInvoice[i][j] = null;
+            }
+        }
+        invoiceDetailsTable.setModel(new DefaultTableModel(emptyInvoice,invoiceDetailsTableColumns));
+        invoicesTableModel.addRow(new Object[]{"", " ", " ", " "});
     }
 }
 
