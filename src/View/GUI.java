@@ -1,5 +1,6 @@
 package View;
 
+import Controller.DateValidation;
 import Controller.TableController;
 import Model.FileOperations;
 import Model.InvoiceHeader;
@@ -11,8 +12,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Objects;
 
 public class GUI extends JFrame implements ActionListener, MouseListener {
@@ -297,9 +301,22 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         }
     }
 
+
+
     private void saveNewInvoice() {
-        invoicesTableModel.addRow(new Object[]{invoiceNumber, invoiceDateTF.getText(), customerNameTF.getText(), invoiceTotal});
-        saveInvoice();
+
+        Boolean isDateRight = new DateValidation().dateValidation(invoiceDateTF.getText());
+
+        if(!customerNameTF.getText().isEmpty()) {
+            if (isDateRight) {
+                invoicesTableModel.addRow(new Object[]{invoiceNumber, invoiceDateTF.getText(), customerNameTF.getText(), invoiceTotal});
+                saveInvoice();
+            } else {
+                JOptionPane.showMessageDialog(this, "Enter date in the right formar (dd-MM-yyyy)", "Invalid date format", JOptionPane.WARNING_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Enter customer name", "Invalid name", JOptionPane.WARNING_MESSAGE);
+        }
     }
 
     private void loadInvoice(){
